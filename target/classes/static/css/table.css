@@ -1,0 +1,78 @@
+		#table,#tableHead{
+			width: 100%;   
+			table-layout: fixed;
+			border-collapse:collapse;
+		}
+		
+		#tableLeft{
+			table-layout: fixed;
+			border-collapse:collapse; 
+		}
+		td{
+			white-space: nowrap;
+			overflow: hidden;
+		}
+		td span{
+			border: none;
+		}
+		
+		.cellSpan {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			white-space: break-spaces;
+			word-break: break-all;
+		}
+		tr{
+			margin:0;
+			padding:0;
+			text-align: center;
+			border:1px solid;
+			border-color: darkgray;
+			white-space: nowrap; 
+			height: 21px;
+		}
+		td{
+			margin:0;
+			padding:0;
+			border:1px solid;
+			border-color: darkgray;
+			vertical-align: middle;
+			text-align: center;
+			white-space: nowrap;
+			height: 21px;
+		}
+		select{
+			display:block;
+		}
+		html,body{
+			margin:0;
+			cursor: default;
+			width: 100%;
+			height: 100%;
+		}
+		#tableHead td {
+			height: 21px;
+			background: -webkit-linear-gradient( #FAFAD2 , #00FFFF); /* Safari 5.1 - 6.0 */
+			background: -o-linear-gradient( #FAFAD2 , #00FFFF); /* Opera 11.1 - 12.0 */
+			background: -moz-linear-gradient( #FAFAD2 , #00FFFF); /* Firefox 3.6 - 15 */
+			background: linear-gradient( #FAFAD2 ,#00FFFF); /* ��׼���﷨������������ */
+		}
+		#tableHead tr {
+			height: 21px;
+		}
+		#complexHead td {
+			height: 21px;
+			/*background: -webkit-linear-gradient( #FAFAD2 , #CFCFCF); !* Safari 5.1 - 6.0 *!
+			background: -o-linear-gradient( #FAFAD2 , #CFCFCF); !* Opera 11.1 - 12.0 *!
+			background: -moz-linear-gradient( #FAFAD2 , #CFCFCF); !* Firefox 3.6 - 15 *!
+			background: linear-gradient( #FAFAD2 , #CFCFCF); !* ��׼���﷨������������ *!*/
+		}
+		#complexLeft td {
+			height: 21px;
+			/*background: -webkit-linear-gradient( #FAFAD2 , #CFCFCF); !* Safari 5.1 - 6.0 *!
+			background: -o-linear-gradient( #FAFAD2 , #CFCFCF); !* Opera 11.1 - 12.0 *!
+			background: -moz-linear-gradient( #FAFAD2 , #CFCFCF); !* Firefox 3.6 - 15 *!
+			background: linear-gradient( #FAFAD2 , #CFCFCF); !* ��׼���﷨������������ *!*/
+		}
+		

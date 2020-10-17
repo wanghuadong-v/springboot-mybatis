@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Cache" content="no-cache">
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>表格绘制工具</title>
+	<link href="../static/layui/css/modules/layer/default/layer.css">
+    <style>
+	    *{
+	    	margin:0;
+	    	padding:0;
+			box-sizing: border-box;
+	    }
+        html,body{
+            font-family: cursive;
+            font-size: 20px; /* 字体大小 */
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+        }
+        input,select{
+            font-family: cursive;
+            font-size: 22px; /* 字体大小 */
+
+            margin-top: 2px;
+            height:30px;
+            border: 1px solid #ccc;
+            padding: 1px 20px;
+            border-radius: 8px; /*css3属性IE不支持*/
+            padding-left:20px;
+        }
+        button{
+            padding: 5px;
+            margin-top: 5px;
+
+            border-width: 0px; /* 边框宽度 */
+            border-radius: 3px; /* 边框半径 */
+            background: #1E90FF; /* 背景颜色 */
+            cursor: pointer; /* 鼠标移入按钮范围时出现手势 */
+            outline: none; /* 不显示轮廓线 */
+            font-family: Microsoft YaHei; /* 设置字体 */
+            color: white; /* 字体颜色 */
+            font-size: 18px; /* 字体大小 */
+        }
+		#option {
+			display: none;
+		}
+
+		.setBorder input, #showHead, #autoXh {
+			vertical-align: middle;
+			margin: 10px;
+		}
+		.move > div {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+		.move > div span{
+			text-align: center;
+			line-height: 28px;
+			font-size: 32px;
+			cursor: pointer;
+			margin-left: 40px;
+		}
+    </style>
+</head>
+<body style="padding: 8px;">
+	<img src="../static/img/表格绘制工具.jpg" style="height: 8vh;background-color: #00bcd4"/>
+    <div style="border: 1px solid blue;background-color: lightgoldenrodyellow;width: 100%;height: 91vh;display:flex;">
+		<div style="border: 1px solid lightslategrey;flex:1;">
+            <iframe id="showTable" style="height:100%;width:100%" src="/toTable" frameborder="no" scrolling="yes"></iframe>
+		</div>
+		<div style="width: 20%;">
+			<input id="showHead" type="checkbox" onchange="showHead()">隐藏列头
+			<input id="autoXh" type="checkbox" checked="true" onchange="autoXh()">自动序号
+			</br>
+			<button onclick="setDefHeight()">默认行高</button></br>  
+	        <button onclick="addCol()">增列</button>
+	        <button onclick="delCol()">删列</button></br>  
+	        <button onclick="addRow()">增行</button>
+			<button onclick="delRow()">删行</button> </br> 
+			<button onclick="changeColName()">改列名</button>
+			<button onclick="changeColWidth()">改列宽</button></br>
+			<button onclick="changeControl('列')">列控件</button>
+			<button onclick="changeControl('格')">格控件</button></br>
+			<button onclick="setRowHeight()">设置行高</button> 
+			<button onclick="setBorder()">设置边框</button></br>
+			<button onclick="mergeCell()">合并单元格</button>
+			<button onclick="cancelMerge()">取消合并单元格</button></br>
+			<button onclick="setGradeColor()">设置网格颜色</button>
+			<button onclick="froze()">固定行列</button>
+			<button onclick="initZ()">initZ</button></br>
+			移动行列：
+			<div class="move">
+				<div>
+					<span onclick="move('up')">⬆️</span>
+				</div>
+				<div>
+					<span onclick="move('left')">⬅️</span>
+					<span onclick="move('right')">➡️</span>
+				</div>
+				<div>
+					<span onclick="move('bottom')">⬇️</span>
+				</div>
+			</div>
+			<input  id="tableStr" type="text" style="height: 40px;width: 100%;"></br>
+			<button onclick="dealTableStr()">执行</button>
+			<button  onclick="createTableStr()">生成表格字符串</button></br>
+			<!-- <button  onclick="sel()">sel</button>
+			<button  onclick="sel1()">sel1</button>
+			<button onclick="saveBtn()">保存</button>
+			<button onclick="showBtn()">显示</button> -->
+        </div>
+    </div>
+</body>
+<script src="../static/js/jquery-3.5.1.js" type="text/javascript"></script>
+<script src="../static/layui/lay/modules/layer.js" type="text/javascript"></script>
+<script>
+var headId = "tableHead";
+var tableId = "table";
+
+function oId(id){
+	return document.getElementById(id);
+}
+
+function saveBtn(){
+	if(oId("tableStr").value === "") return;  
+	localStorage.tableStr = oId("tableStr").value;
+}
+
+function showBtn(){
+	oId("tableStr").value = localStorage.tableStr;
+}
+
+function sel(){
+	var showTable = oId("showTable").contentWindow;
+	showTable.deal("SEL<>1111>222>333>444>555>666>777>888>999>000>1111>ddddd>9999>");
+}
+
+function sel1(){
+	var showTable = oId("showTable").contentWindow;
+	showTable.deal("SEL<>1111>222>");
+}
+
+function showHead(){
+	var showTable = oId("showTable").contentWindow;
+	showTable.showHead(!oId("showHead").checked);
+	showTable.resetLayer();
+}
+
+function autoXh(){
+	var autoXh = document.getElementById("autoXh");
+	var showTable = oId("showTable").contentWindow;
+	showTable.showXh(autoXh.checked);
+	showTable.createTableLeft();
+	showTable.resetLayer();
+}
+
+function setDefHeight(){
+	var showTable = oId("showTable").contentWindow;
+	var table = showTable.oId(tableId);
+	var defHeight = showTable.defHeight;
+	var rowHeight = window.prompt("默认行高", defHeight);
+	if(rowHeight == null || isNaN(rowHeight)) return;
+	showTable.defHeight = rowHeight;
+}
+
+function changeEditor(){
+	var editor = oId("editor").value;
+	if(editor === "下拉"){
+		oId("option").value = "";
+		oId("option").style.display = "inline";
+	} else {
+		oId("option").style.display = "none";
+	}
+}
+
+//增列
+function addCol() {
+	var showTable = oId("showTable").contentWindow;
+	var endCol = showTable.endCol;
+	if(endCol >= getColNum() || endCol<0) {
+		endCol = getColNum();
+	} else {
+		endCol += 1;
+	}
+	showTable.deal("h('列名',100,'文本', "+endCol+");");
+	for(var i=0;i< getRowNum();i++){
+		showTable.addCell(i,endCol,"");
+	}
+	showTable.selectMore();
+	resetMargin();
+	showTable.resetLayer();
+	showTable.setSelect(showTable.startRow,showTable.startCol,showTable.endRow,showTable.endCol,[]);
+}
+
+//删列
+function delCol() {
+	var showTable = oId("showTable").contentWindow;
+	var endCol = showTable.endCol;
+	if(endCol<0 || endCol>=getColNum()){
+		endCol = getColNum()-1;
+	}
+	showTable.deletCell(endCol);
+	//showTable.setSelect(showTable.endRow,endCol,showTable.endRow,endCol,[]);
+	resetMargin();
+	showTable.resetLayer();
+}
+
+function setRowHeight(){
+	var showTable = oId("showTable").contentWindow;
+	var compareVal = compareSize(showTable.startRow, showTable.endRow);
+	var startRow = compareVal.start;
+	var endRow = compareVal.end;
+	if(endRow<0) return;
+	var rowHeight = window.prompt("修改行高", "");
+	if(!rowHeight) return;
+	for(var i=startRow;i<endRow+1;i++){
+		showTable.setRowHeight(rowHeight, i);
+	}
+}
+
+//增行
+function addRow(){
+	var showTable = oId("showTable").contentWindow;
+	var endRow = showTable.endRow;
+	if(endRow<0 || endRow>=getRowNum()){
+		endRow = getRowNum();
+	} else {
+		endRow += 1;
+	}
+	var tbStr = "ADD<"+endRow+">";
+	for(var i=0;i<getColNum();i++){
+		tbStr += ">";
+	}
+	oId("showTable").contentWindow.deal(tbStr);
+	showTable.resetLayer();
+}
+
+//删行
+function delRow() {
+	var row = "";
+	var showTable = oId("showTable").contentWindow;
+	var rowVal =  compareSize(showTable.startRow, showTable.endRow);
+	var startRow = rowVal.start;
+	var endRow = rowVal.end;
+	
+	if(endRow<0 || endRow>=getRowNum()){
+		startRow = getRowNum() - 1;
+		endRow = getRowNum() - 1;
+	}
+
+	for(var i=startRow;i<=endRow;i++){
+		row += i == endRow? i : i + ",";
+	}
+	if(!row) return;
+	oId("showTable").contentWindow.deal("DEL<"+ row +">");
+	//showTable.deletRow();
+	showTable.resetLayer();
+}
+
+//改列名
+function changeColName() {
+	var showTable = oId("showTable").contentWindow;
+	var tableHead = showTable.oId(headId);
+	var startCol = showTable.startCol;
+	var endCol = showTable.endCol;
+	if(startCol<0 || endCol < 0) return;
+	var colName = showTable.getNameByColNum(endCol);
+	var newColName = window.prompt("修改列名", colName);
+	if(!newColName) return;
+	tableHead.rows[0].cells[endCol].innerHTML = newColName;
+}
+
+//改列宽
+function changeColWidth() {
+	var showTable = oId("showTable").contentWindow;
+	var tableHead = showTable.oId(headId);
+	var table = showTable.oId(tableId);
+	var startCol = showTable.startCol;
+	var endCol = showTable.endCol;
+	if(startCol<0 || endCol < 0) return;
+	var newColWidth = window.prompt("修改列宽", "");
+	var sc = startCol > endCol? endCol : startCol;
+	var ec = startCol > endCol? startCol : endCol;
+	if(!newColWidth) return;
+	for(var j=0; j<getRowNum(); j++){
+		for(var k=0; k<getColNum(); k++){
+			if(k >= sc && k<=ec){
+				var wid = parseInt(table.rows[j].cells[k].style.width);//合并之后的宽度
+				var hWid = showTable.getColWidth(k);
+				table.rows[j].cells[k].style.width = wid + (newColWidth - hWid) + "px";
+			}
+		}
+	}
+
+	for(var i=0;i<getColNum();i++){
+		if(i >= sc && i<=ec){
+			tableHead.rows[0].cells[i].style.width = newColWidth + "px";
+		}
+	}
+	resetMargin();
+}
+
+//重置tb margin
+function resetMargin(){
+	var showTable = oId("showTable").contentWindow;
+	var tableHead = showTable.oId(headId);
+	var table = showTable.oId(tableId);
+
+	for(var i=0;i<getColNum();i++){
+		tableHead.rows[0].cells[i].style.marginLeft = showTable.computeOffset(i) + "px";
+	}
+	
+	for(var j=0; j<getRowNum(); j++){
+		for(var k=0; k<getColNum(); k++){
+			table.rows[j].cells[k].style.marginLeft = showTable.computeOffset(k) + "px";
+		}
+	}
+}
+
+//改控件
+function changeControl(type){
+	var showTable = oId("showTable").contentWindow;
+	var tableHead = showTable.oId(headId);
+	var table = showTable.oId(tableId);
+	var endCol = showTable.endCol;
+	if(endCol<0) return;
+	layer.open({
+		title: ["改控件", 'font-size:20px;'],
+		type: 1,
+		area: ['430px', '180px'],
+		btn: ["确定", "取消"],
+		content: '<span id="controlDiv" style="padding: 20px;">'+
+				'<select name="" id="editor" onchange="changeEditor()">'+
+					'<option value="文本">文本</option>'+
+					'<option value="复选">复选</option>'+
+					'<option value="下拉">下拉</option>'+
+					'<option value="文本域">文本域</option>'+
+				'</select>'+
+				'<input type="text" id="option">'+
+		'</span>',
+		success: function(layero, index){
+			var editor = tableHead.rows[0].cells[endCol].getAttribute("editor");
+			if(editor.indexOf("下拉") === 0){
+				oId("editor").value = "下拉";
+				oId("option").value = editor.replace("下拉,","");
+				oId("option").style.display = "inline";
+			} else {
+				oId("editor").value = editor;
+				oId("option").style.display = "none";
+			}
+		},
+		yes: function(index, layero){
+			var showTable = oId("showTable").contentWindow;
+			var tableHead = showTable.oId(headId);
+			var table = showTable.oId(tableId);
+			var endCol = showTable.endCol;
+			if(endCol<0) return;
+			var editor = oId("editor").value;
+			if(editor === "下拉"){
+				editor += "," + oId("option").value;
+			}
+			if(type === "列"){
+				showTable.setColEditor(endCol,editor);
+			} else {
+				showTable.setCellEditor(showTable.startRow, showTable.startCol, showTable.endRow, showTable.endCol, editor);
+			}
+			layer.close(index);
+		}
+		,btn2: function(index, layero){
+			layer.close(index);
+		}
+	});
+}
+
+//合并单元格
+function mergeCell() {
+	var showTable = oId("showTable").contentWindow;
+	var startRow = showTable.startRow;
+	var endRow = showTable.endRow;
+	var startCol = showTable.startCol;
+	var endCol = showTable.endCol;
+	if(endRow <0 && endCol<0) return;
+	var compareVal = showTable.compareSize(startRow, startCol, endRow, endCol);
+	var countR = compareVal.endRow - compareVal.startRow + 1;
+	var countC = compareVal.endCol - compareVal.startCol + 1;
+	showTable.cc(compareVal.startRow, compareVal.startCol, countR, countC);
+	showTable.initZ();
+}
+
+function initZ(){
+	var showTable = oId("showTable").contentWindow;
+	showTable.initZ();
+}
+
+function setGradeColor(){
+	var showTable = oId("showTable").contentWindow;
+	layer.open({
+		title: ["设置网格颜色", 'font-size:20px;'],
+		type: 1,
+		area: ['430px', '300px'],
+		btn: ["确定", "取消"],
+		content:"<div class='setBorder' style='padding: 20px;'>"+
+			"颜色：<input type='color' id='borderColor' style='width: 200px'/>"+
+		"</div>",
+		yes: function(index, layero){
+			var borderColor = $("#borderColor").val();
+			showTable.setGradeColor(borderColor);
+			layer.close(index);
+		}
+		,btn2: function(index, layero){
+			layer.close(index);
+		}
+	});
+}
+
+//取消合并
+function cancelMerge(){
+	var showTable = oId("showTable").contentWindow;
+	var table = showTable.oId(tableId);
+	var tableHead = showTable.oId(headId);
+	var startRow = showTable.startRow;
+	var startCol = showTable.startCol;
+	if(startRow<0 || startCol<0) return;
+	table.rows[startRow].cells[startCol].className = "";
+	table.rows[startRow].cells[startCol].setAttribute("mergeR", "");
+	table.rows[startRow].cells[startCol].setAttribute("mergeC", "");
+	table.rows[startRow].cells[startCol].style.width = tableHead.rows[0].cells[startCol].style.width;
+	table.rows[startRow].cells[startCol].style.height = parseInt(table.rows[startRow].style.height) + "px";
+	table.rows[startRow].cells[startCol].lastChild.style.lineHeight = parseInt(table.rows[startRow].style.height) + "px";
+	//table.rows[startRow].cells[startCol].style.position = "";
+	showTable.initZ();
+}
+
+function setBorder(){
+	layer.open({
+		title: ["设置边框", 'font-size:20px;'],
+		type: 1,
+		area: ['430px', '300px'],
+		btn: ["确定", "取消"],
+		content:"<div class='setBorder' style='padding: 20px;'>"+
+			"<div id='direction'>"+
+				"方向：<input type='checkbox'/><span>上</span>"+
+				"<input type='checkbox'/><span>下</span>"+
+				"<input type='checkbox'/><span>左</span>"+
+				"<input type='checkbox'/><span>右</span>"+
+			"</div>"+
+			"宽度：<input type='text' id='borderWidth' placeholder='0'/></br>"+
+			"颜色：<input type='color' id='borderColor' style='width: 200px'/>"+
+		"</div>",
+		yes: function(index, layero){
+			var dirArr = [];
+			var borderWidth = $("#borderWidth").val();
+			var borderColor = $("#borderColor").val();
+			var input = $("#direction").find("input");
+			var showTable = oId("showTable").contentWindow;
+
+			for(var i=0;i<input.length;i++){
+				if(input[i].checked){
+					dirArr.push($("#direction span").eq(i).html());
+				}
+			}
+			showTable.setBorder(showTable.startRow, showTable.startCol, showTable.endRow, showTable.endCol, dirArr.join(","), borderWidth, borderColor);
+			layer.close(index);
+		}
+		,btn2: function(index, layero){
+			layer.close(index);
+		}
+	});
+}
+
+function froze(){
+	layer.open({
+		title: ["设置边框", 'font-size:20px;'],
+		type: 1,
+		area: ['430px', '300px'],
+		btn: ["确定", "取消"],
+		content:"<div class='setBorder' style='padding: 20px;'>"+
+			"<div>固定行:<input type='text' id='frozeRow' placeholder='0'></div>" +
+			"<div>固定列:<input type='text' id='frozeCol' placeholder='0'></div>" +
+		"</div>",
+		yes: function(index, layero){
+			var showTable = oId("showTable").contentWindow;
+			showTable.frozeRow = oId("frozeRow").value || 0;
+			showTable.frozeCol = oId("frozeCol").value || 0;
+			showTable.initZ();
+			layer.close(index);
+		}
+		,btn2: function(index, layero){
+			layer.close(index);
+		}
+	});
+}
+
+function move(direction){
+	var showTable = oId("showTable").contentWindow;
+	var table = showTable.oId("table");
+	var tableHead = showTable.oId("tableHead");
+	var endRow = showTable.endRow;
+	var endCol = showTable.endCol;
+	
+	if(endCol < 0 || endRow<0) return;
+	if(direction == "up"){
+		if(endRow === 0) return;
+		$(table.rows[endRow]).insertBefore($(table.rows[endRow-1]));
+		endRow = endRow-1;
+		showTable.createTableLeft();
+	} else if(direction == "left"){
+		if(endCol === 0) return;
+		$(tableHead.rows[0].cells[endCol]).insertBefore($(tableHead.rows[0].cells[endCol-1]));
+		for(var i=0;i<getRowNum();i++){
+			$(table.rows[i].cells[endCol]).insertBefore($(table.rows[i].cells[endCol-1]));
+		}
+		endCol = endCol - 1;
+		resetMargin();
+	} else if(direction == "right") {
+		if(endCol === getColNum()-1) return;
+		$(tableHead.rows[0].cells[endCol]).insertAfter($(tableHead.rows[0].cells[endCol+1]));
+		for(var i=0;i<getRowNum();i++){
+			$(table.rows[i].cells[endCol]).insertAfter($(table.rows[i].cells[endCol+1]));
+		}
+		endCol = endCol + 1;
+		resetMargin();
+	} else if(direction == "bottom") {
+		if(endRow === getRowNum()-1) return;
+		$(table.rows[endRow]).insertAfter($(table.rows[endRow + 1]));
+		endRow = endRow + 1;
+		showTable.createTableLeft();
+	}
+	showTable.setSelect(endRow, endCol, endRow, endCol,[]);
+}
+
+//生成表格字符串
+function createTableStr(){
+	var showTable = oId("showTable").contentWindow;
+	var tableHead = showTable.oId(headId);
+	var table = showTable.oId(tableId);
+	var frozeRow = showTable.frozeRow || 0;
+	var frozeCol = showTable.frozeCol || 0;
+
+	var defHeight = showTable.defHeight;
+	var tbStr = "defHeight = "+ defHeight +";"; //默认行高
+	tbStr += "showXh("+ oId("autoXh").checked +");"; //显示序号
+	tbStr += "showHead("+ !oId("showHead").checked +");"; //显示列头
+
+	//固定行列
+	if(frozeRow != 0){
+		tbStr += "frozeRow="+ frozeRow +";";
+	}
+
+	if(frozeCol !=0){
+		tbStr += "frozeCol="+ frozeCol +";";
+	}
+
+	//列名/列宽/列控件
+	for(var j=0;j<getColNum();j++){
+		var colName = tableHead.rows[0].cells[j].innerHTML;
+		var colWidth = showTable.getColWidth(j);
+		var colType = tableHead.rows[0].cells[j].getAttribute("editor");
+		tbStr += "h('"+ colName +"',"+ colWidth +",'"+ colType +"');";
+	}
+
+	//单元格
+	if(getRowNum()>0){
+		tbStr += "deal('SEL<>";
+		for(var i=0; i<getRowNum(); i++){
+			for(var k=0; k<getColNum(); k++){
+				if(table.rows[i].cells[k].lastChild.lastChild && table.rows[i].cells[k].lastChild.lastChild.nodeName === "INPUT"){
+					if(table.rows[i].cells[k].lastChild.lastChild.checked) {
+						tbStr +=  "1>";
+					} else {
+						tbStr +=  "0>";
+					}
+				} else if(table.rows[i].cells[k].lastChild.lastChild && table.rows[i].cells[k].lastChild.lastChild.nodeName === "TEXTAREA"){
+					tbStr += table.rows[i].cells[k].lastChild.lastChild.value + ">";
+				} else {
+					tbStr +=  table.rows[i].cells[k].lastChild.innerHTML + ">";
+				}
+			}
+		}
+		tbStr += "');";
+	}
+
+	//合并单元格
+	for(var i=0; i<getRowNum(); i++){
+		for(var k=0; k<getColNum(); k++){
+			var mergeR = table.rows[i].cells[k].getAttribute('mergeR');
+			var mergeC = table.rows[i].cells[k].getAttribute('mergeC');
+			if(mergeR && mergeC){
+				tbStr += "cc("+ i +","+ k +","+ mergeR +","+ mergeC +");";
+			}
+		}
+	}
+
+	tbStr += "initZ();";
+
+	//设置某行高
+	for(var i=0; i<getRowNum(); i++){
+		var rowHeight = parseInt(table.rows[i].style.height);
+		if(rowHeight && rowHeight != defHeight){
+			tbStr += "setRowHeight("+ rowHeight +","+ i +");";
+		}
+	}
+
+	//设置边框
+	for(var i=0; i<getRowNum(); i++){
+		for(var k=0; k<getColNum(); k++){
+			var text = $(table.rows[i].cells[k]).find(".text");
+			var borderTopWidth = parseInt(text.css("borderTopWidth"));
+			var borderBottomWidth = parseInt(text.css("borderBottomWidth"));
+			var borderLeftWidth = parseInt(text.css("borderLeftWidth"));
+			var borderRightWidth = parseInt(text.css("borderRightWidth"));
+			if(borderTopWidth !=0 ){
+				tbStr += "setBorder("+ i +","+ k +","+ i +","+ k +",'上','"+ borderTopWidth +"','"+ text.css("borderTopColor") +"');";
+			}
+			if(borderBottomWidth !=0 ){
+				tbStr += "setBorder("+ i +","+ k +","+ i +","+ k +",'下','"+ borderBottomWidth +"','"+ text.css("borderBottomColor") +"');";
+			}
+			if(borderLeftWidth !=0 ){
+				tbStr += "setBorder("+ i +","+ k +","+ i +","+ k +",'左','"+ borderLeftWidth +"','"+ text.css("borderLeftColor") +"');";
+			}
+			if(borderRightWidth !=0 ){
+				tbStr += "setBorder("+ i +","+ k +","+ i +","+ k +",'右','"+ borderRightWidth +"','"+ text.css("borderRightColor") +"');";
+			}
+			
+		}
+	}
+
+	//格控件
+	for(var i=0; i<getRowNum(); i++){
+		for(var k=0; k<getColNum(); k++){
+			var colEditor = tableHead.rows[0].cells[k].getAttribute("editor");
+			var cellEditor = table.rows[i].cells[k].getAttribute("editor");
+			if(cellEditor && colEditor != cellEditor){
+				tbStr += "setCellEditor("+ i +","+ k +","+ i +","+ k +",'"+ cellEditor +"');";
+			}
+		}
+	}
+
+	//设置网格颜色
+	var gradeColor = showTable.oId("table").getAttribute("gradeColor");
+	if(gradeColor){
+		tbStr += "setGradeColor('"+ gradeColor +"')";
+	}
+	
+	//console.log(tbStr)
+	oId("tableStr").value = tbStr;
+}
+
+//执行生成的表格字符串
+function dealTableStr(){
+	var showTable = oId("showTable").contentWindow;
+	var tbStr = oId("tableStr").value;
+	if(!tbStr) return;
+	showTable.clearTable();
+	showTable.deal(tbStr);
+	if(showTable.oId("divLeft").style.display == "block"){ 
+		oId("autoXh").checked = true; 
+	} else { 
+		oId("autoXh").checked = false;
+	}
+	if(showTable.oId("tableHead").style.display == "block"){
+		oId("showHead").checked = false;
+	} else { 
+		oId("showHead").checked = true;
+	}
+	showTable.resetLayer();
+}
+
+//获取行号
+function getRowNum(){
+	return oId("showTable").contentWindow.getRowsCount();
+}
+
+//获取列号
+function getColNum(){
+	return oId("showTable").contentWindow.getColsCount();
+}
+
+//比较两个值的大小
+function compareSize(a, b){
+	if(a>b){
+		return {start: b, end: a};
+	}
+	return {start: a, end: b};
+}
+</script>	
+</html>

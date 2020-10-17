@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>复杂表头测试</title>
+    <link rel="stylesheet" href="/static/layui/css/layui.css">
+</head>
+<body>
+<table class="layui-table" lay-data="{width:800, url:'/getTableData', page: true}">
+    <thead>
+    <tr>
+        <th lay-data="{checkbox:true, fixed:'left'}" rowspan="2"></th>
+        <th lay-data="{field:'username', width:150}" rowspan="2">联系人</th>
+        <th lay-data="{align:'center'}" colspan="3">地址</th>
+        <th lay-data="{field:'amount', width:120}" rowspan="2">金额</th>
+<!--        <th lay-data="{fixed: 'right', width: 160, align: 'center', toolbar: '#barDemo'}" rowspan="2">操作</th>-->
+    </tr>
+    <tr>
+        <th lay-data="{field:'LOC', width:120}">省</th>
+        <th lay-data="{field:'city', width:120}">市</th>
+        <th lay-data="{field:'zone', width:200}">区</th>
+    </tr>
+    </thead>
+</table>
+<script src="/static/js/jquery-3.5.1.js"></script>
+<script src="/static/layui/layui.js" charset="utf-8"></script>
+<script type="text/javascript"  th:inline="none">
+    layui.use('table', function(){
+        var table = layui.table;
+
+    });
+</script>
+
+</body>
+</html>

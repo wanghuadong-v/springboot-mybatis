@@ -1,0 +1,22 @@
+#spring:
+#  datasource:
+#    url: jdbc:mysql://127:0.0.1/eeb_spb?characterEncoding=utf-8&serverTimezone=UTC
+#    data-username: root
+#    data-password: root
+#    driver-class-name: com.mysql.jdbc.Driver
+spring:
+  datasource:
+    url: jdbc:oracle:thin:@127.0.0.1:1521:orcl
+    username: scott
+    password: scott
+    driver-class-name: oracle.jdbc.OracleDriver
+  mvc:
+    static-path-pattern: /static/** #静态资源路径
+    view:
+      prefix: /WEB-INF/view
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.jxdinfo.mybatisclient.model
+
+

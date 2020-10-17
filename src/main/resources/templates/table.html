@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Cache" content="no-cache">
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+<title>接受字符串转化成表格</title>
+	
+	<link rel="stylesheet" href="../static/css/table.css"  type="text/css" />
+	<script src="../static/js/cnchar.min.js"></script>
+	<script src="../static/js/utils_d3.js" type="text/javascript"></script>
+	<script src="../static/js/jquery-1.11.3.min.js" type="text/javascript"></script>
+	<script src="../static/js/Otp.js" type="text/javascript"></script>
+	<script type="text/javascript" src="../static/js/common.js"></script>
+</head>
+<body>
+<!-- 创建父容器来盛放表格，方便以后显示多个表格时候的布局 -->
+	<div id="tableBox" style="background-color: #F0F8FF;position:absolute;" onselectstart="return false">
+		<div id="divHead" style="position:absolute;z-index:5;margin-left: 26px;">
+			<table id="tableHead" border="0">
+				<tbody>
+					<tr id="headTr"></tr>
+				</tbody>
+			</table>
+		</div>
+		<div id="divCenter" style="margin-top:22px;position:absolute;margin-left: 26px;">
+			<table id="table" border="0" style="position:absolute">
+	
+			</table>
+			<div id='selectDiv' class='selectDivClass' style='display:none;position:absolute;z-index:4;'> 
+				<select id='selectControl' size=10 multiple='multiple'></select>
+			</div>
+			<div id="selDiv" style="z-index:4;position: absolute;pointer-events:none;margin-left: 1px;display:none;" >
+				<svg id="dragBorderSVG" xmlns="http://www.w3.org/2000/svg" version="1.1"  >
+					<rect id="dragBorder" style="stroke-width:1px;fill-opacity:0.2;fill: red;"/>
+				</svg>
+			</div>
+			<div id="floatBox" style="border: 1px solid red;height: 20px;width: 20px;position: absolute;display: none"></div>
+		</div>
+		<div id="divLeft" style="position:absolute;z-index:5;">
+			<table id="tableLeft" border="0"  bgcolor="#F0F8FF" style="font-size: 10px;position:absolute;left:0">
+				<tbody></tbody>
+			</table>
+		</div>
+	</div>
+<script type="text/javascript" src="../static/js/table.js"></script>
+<script type="text/javascript" src="../static/js/tableUtil.js" ></script>
+<script>
+	var mouseDownType =0;//默认为0,1代表点击在单元格，2代表点击到
+	$("#floatBox")[0].onmousedown = function (e){
+		isDown=2;
+		changeDragLacus(startRow, startCol, endRow, endCol);
+	}
+	
+	window.onmouseup = function (e) {
+		$("#selDiv").css("display","none");
+		isDown = 0;
+	}
+	//悬浮框显示
+	function showDragDiv(){
+		$("#floatBox").css("display","inline");
+		var situation = getScrollSitu();
+		var floatEndRow = endRow >= startRow? endRow : startRow;
+		var floatEndCol = endCol >= startCol? endCol : startCol;
+		
+		//调整悬浮框位置
+		$("#floatBox")[0].style.marginTop = getClintTop(0, floatEndCol, floatEndRow, floatEndCol) + situation[0] + "px";
+		$("#floatBox")[0].style.marginLeft = getClintLeft(floatEndRow, 0, floatEndRow, floatEndCol) + situation[1] +"px";
+	}
+
+	function getClintTop(startRow, startCol, endRow, endCol){
+		var table = document.getElementById("table");
+		return table.rows[endRow].cells[endCol].getBoundingClientRect().bottom - table.rows[startRow].cells[startCol].getBoundingClientRect().top;
+	}
+
+	function getClintLeft(startRow, startCol, endRow, endCol){
+		var table = document.getElementById("table");
+		return table.rows[endRow].cells[endCol].getBoundingClientRect().right - table.rows[startRow].cells[startCol].getBoundingClientRect().left;
+	}
+</script>
+</body>
+</html>
