@@ -6,13 +6,17 @@
     <link rel="stylesheet" href="/static/layui/css/layui.css">
 </head>
 <body>
-<table class="layui-hide" id="tableTest1"></table>
+<div>
+    <button onclick="getTableData()">获取表格数据</button>
+</div>
+<table class="layui-hide" id="tableTest1" lay-filter="tableTest1"></table>
 
 <script src="/static/js/jquery-3.5.1.js"></script>
 <script src="/static/layui/layui.js" charset="utf-8"></script>
 <script  type="text/javascript"  th:inline="none">
-    layui.use('table', function(){
+    layui.use(['table','form'], function(){
         var table = layui.table;
+        var form = layui.form;
 
         table.render({
             elem: '#tableTest1'
@@ -26,10 +30,43 @@
                 ,{field:'sign', title: '签名', width: '30%', minWidth: 100} //minWidth：局部定义当前单元格的最小宽度，layui 2.2.1 新增
                 ,{field:'experience', title: '积分', sort: true}
                 ,{field:'score', title: '评分', sort: true}
-                ,{field:'classify', title: '职业'}
-                ,{field:'wealth', width:137, title: '财富', sort: true}
-            ]]
+                ,{field:'classify', title: '职业',}
+                ,{field:'wealth', width:137, title: '财富', sort: true,
+                templet:function (d) {
+                    return `<select id=` + `select` +d.id + `>
+                                <option value="111">111</option>
+                                <option value="222">222</option>
+                                <option value="333">333</option>
+                            </select>`;
+                }}
+            ]],
+            done:function () {
+                $(".layui-table-body, .layui-table-box, .layui-table-cell").css('overflow', 'visible');
+
+                var select = 'dd[lay-value=' + '222' + ']';
+                $('#select10').siblings("div.layui-form-select").find('dl').find(select).click();
+            }
         });
+
+        //监听行单击事件（双击事件为：rowDouble）
+        table.on('row(tableTest1)', function(obj){
+            var data = obj.data;
+
+            // layer.alert(JSON.stringify(data), {
+            //     title: '当前行数据：'
+            // });
+            console.log(data);
+
+        });
+        
+        window.getTableData = function () {
+            var tableData = layui.table.cache['tableTest1'];
+            for (let i = 0; i < tableData.length; i++) {
+                var selected = $("#select" + tableData[i].id).val();
+                //往数组里加入下拉框的数据
+                tableData[i].wealth = selected;
+            }
+        }
     });
 </script>
 </body>

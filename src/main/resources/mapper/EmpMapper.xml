@@ -6,6 +6,6 @@
 <mapper namespace="com.jxdinfo.mybatisclient.dao.IEmpDao">
 
     <select id="getAll1" resultType="java.util.HashMap">
-       select loc from dept
+       select deptno as "id",loc from dept
     </select>
 </mapper>
