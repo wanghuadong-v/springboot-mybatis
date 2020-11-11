@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.springframework.org/schema/jdbc">
+<head>
+    <meta charset="UTF-8">
+    <title>复杂表头测试</title>
+    <link rel="stylesheet" href="/static/layui/css/layui.css">
+</head>
+<body>
+<table class="layui-hide" id="test"></table>
+
+<script src="/static/js/jquery-3.5.1.js"></script>
+<script src="/static/layui/layui.js" charset="utf-8"></script>
+<script type="text/javascript"  th:inline="none">
+    layui.use('table', function(){
+        var table = layui.table;
+
+        table.render({
+            elem: '#test'
+            ,url:'/getTableData'
+            ,cellMinWidth: 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+            ,cols: [[
+                {field:'id', width:80, title: 'ID', sort: true}
+                ,{field:'username', width:80, title: '用户名',edit:true}
+                ,{field:'sex', width:80, title: '性别', sort: true,edit:true}
+                ,{field:'city', width:80, title: '城市',edit:true}
+                ,{field:'sign', title: '签名', width: '30%', minWidth: 100,edit:true} //minWidth：局部定义当前单元格的最小宽度，layui 2.2.1 新增
+                ,{field:'experience', title: '积分', sort: true,edit:true}
+                ,{field:'score', title: '评分', sort: true,edit:true}
+                ,{field:'classify', title: '职业',edit:true}
+                ,{field:'wealth', width:137, title: '财富', sort: true,edit:true}
+            ]],
+            done:function (res, curr, count) {
+                $(document).on('keydown', '.layui-table-edit', function (e) {
+                    var td = $(this).parent("td"), tr = td.parent('tr'), trs = tr.parent().find('tr'),
+                        tr_index = tr.index(), td_index = td.index(),
+                        td_last_index = tr.find('[data-edit="true"]:last').index(),
+                        td_first_index = tr.find('[data-edit="true"]:first').index(),
+                        tr_last_index = trs.last().index(),
+                        tr_first_index = 0;
+
+
+                    console.log("tr_index:" + tr_index)
+                    console.log("td_last_index:" + td_last_index)
+                    console.log("td_first_index:" + td_first_index)
+                    console.log("tr_last_index:" + tr_last_index)
+                    switch (e.keyCode) {
+                        //tab键
+                        case 9:
+                            //阻止默认事件
+                            e.preventDefault()
+                        //tab只支持上下移动切换,竟然找不到this对象所在的td
+                        case 13:     //enter键
+                        case 39:     //右键
+                            if (td_index == td_last_index) {
+                                if (tr_index == trs.length - 1) trs.eq(0).find('td').eq(td_first_index).click();
+                                else tr.next().find('td').eq(td_first_index).click();
+                            } else {
+                                td.nextAll('[data-edit="true"]:first').click();
+                            }
+                            break;
+                        case 37:     //左键
+                            if (td_index == td_last_index) td.prevAll('[data-edit="true"]:first').click();
+                            else td.prevAll('[data-edit="true"]:first').click();
+                            break;
+                        case 38:     //上键
+                            if (tr_index == tr_first_index) trs.eq(tr_last_index).find('td').eq(td_index).click();
+                            else tr.prev().find('td').eq(td_index).click();
+                            break;
+                        case 40:     //下键
+                            if (tr_index == tr_last_index) trs.eq(0).find('td').eq(td_index).click();
+                            else  tr.next().find('td').eq(td_index).click();
+                            break;
+                    }
+                })
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

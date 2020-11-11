@@ -40,11 +40,11 @@ public class TestController {
     }
     @RequestMapping(value = "/toTest3")
     public String toTest3(Model model){
-        return "test3";
+        return "表格实现下拉框";
     }
     @RequestMapping(value = "/toTest4")
     public String toTest4(Model model){
-        return "test4";
+        return "动态修改指定单元格数据";
     }
     @RequestMapping(value = "/getTableData")
     @ResponseBody

@@ -12,13 +12,13 @@
         <th lay-data="{checkbox:true, fixed:'left'}" rowspan="2"></th>
         <th lay-data="{field:'username', width:150,edit:true}" rowspan="2">联系人</th>
         <th lay-data="{align:'center'}" colspan="3">地址</th>
-        <th lay-data="{field:'amount', width:120}" rowspan="2">金额</th>
+        <th lay-data="{field:'amount', width:120,edit:true}" rowspan="2">金额</th>
 <!--        <th lay-data="{fixed: 'right', width: 160, align: 'center', toolbar: '#barDemo'}" rowspan="2">操作</th>-->
     </tr>
     <tr>
-        <th lay-data="{field:'LOC', width:120}">省</th>
-        <th lay-data="{field:'city', width:120}">市</th>
-        <th lay-data="{field:'zone', width:200}">区</th>
+        <th lay-data="{field:'LOC', width:120,edit:true}">省</th>
+        <th lay-data="{field:'city', width:120,edit:true}">市</th>
+        <th lay-data="{field:'zone', width:200,edit:true}">区</th>
     </tr>
     </thead>
 </table>
@@ -36,10 +36,18 @@
                 , data = obj.data //得到所在行所有键值
                 , field = obj.field; //得到字段
 
+            console.log(obj);
+
             //重新赋值
             var parents = $(this).parents()[1];
             console.log(parents)
-            $(parents).find("td[data-field='city']").text(2 * value);
+
+            $(parents).find("td[data-field='city'] div").text(2 * value);
+
+            layui.table.cache['postTable'][0].city = "haha"
+
+            var tableData = layui.table.cache['postTable']
+            console.log(tableData)
         })
 
     });
