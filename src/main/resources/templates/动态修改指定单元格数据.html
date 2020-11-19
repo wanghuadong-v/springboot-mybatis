@@ -42,10 +42,23 @@
             var parents = $(this).parents()[1];
             console.log(parents)
 
+            /**
+             * 更改显示的内容
+             */
             $(parents).find("td[data-field='city'] div").text(2 * value);
 
+            /**
+             * 更改value
+             * @type {string}
+             */
             layui.table.cache['postTable'][0].city = "haha"
 
+            /**
+             * 更改缓存
+             */
+            obj.update({
+                city : "haha"
+            })
             var tableData = layui.table.cache['postTable']
             console.log(tableData)
         })
