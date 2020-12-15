@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.springframework.org/schema/jdbc">
+<head>
+    <meta charset="UTF-8">
+    <title>多选下拉框</title>
+    <link rel="stylesheet" href="/static/layui/css/layui.css" media="all">
+    <script src="/static/js/xm-select.js"></script>
+</head>
+<body>
+<div id="demo1"></div>
+<div>
+    <button onclick="getVal()">点我获取值</button>
+</div>
+<script src="/static/js/jquery-3.5.1.js"></script>
+<script src="/static/layui/layui.js" charset="utf-8"></script>
+
+<script type="text/javascript"  th:inline="none">
+    var demo1 = xmSelect.render({
+        el: '#demo1',
+        language: 'zn',
+        data: [
+            {name: '张三', value: 1},
+            {name: '李四', value: 2},
+            {name: '王五', value: 3},
+        ]
+    });
+    window.getVal = function () {
+        var selectArr = demo1.getValue();
+        console.log(selectArr);
+    }
+</script>
+
+</body>
+</html>

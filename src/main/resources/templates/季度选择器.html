@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.springframework.org/schema/jdbc">
+<head>
+    <meta charset="UTF-8">
+    <title>季度选择器</title>
+    <link rel="stylesheet" href="/static/layui/css/layui.css">
+</head>
+<body>
+<label class="layui-form-label">季度选择：</label>
+<div class="layui-input-inline">
+    <input type="text" class="layui-input" readonly="readonly" placeholder="请选择季度" id="summary_quarter">
+</div>
+<div>
+    <button onclick="getDateValue()">点我获取季度选择器值</button>
+</div>
+<script src="/static/js/jquery-3.5.1.js"></script>
+<script src="/static/layui/layui.js" charset="utf-8"></script>
+<script type="text/javascript"  th:inline="none">
+    /**
+     * 使用layui时间控件
+     * */
+    layui.use('laydate', function() {
+        const now = new Date();
+        const laydate = layui.laydate;
+        // 季度
+        laydate.render({
+            elem: '#summary_quarter'
+            ,type: 'month'
+            ,format: 'yyyy年M季度'
+            ,min: "1900-1-1"
+            , max: now.getFullYear()  + "-12-31"
+            ,ready: function () {
+                const hd = $("#layui-laydate" + $('#summary_quarter').attr("lay-key"));
+                if (hd.length > 0) {
+                    hd.click(function () {
+                        ren($(this));
+                    });
+                }
+                ren(hd);
+            }
+        });
+        function  ren(thiz) {
+            const mls = thiz.find(".laydate-month-list");
+            mls.each(function () {
+                $(this).find("li").each(function (inx, ele) {
+                    const cx = ele.innerHTML;
+                    if (inx < 4) {
+                        ele.innerHTML = cx.replace(/月/g, "季度");
+                    } else {
+                        ele.style.display = "none";
+                    }
+                });
+            });
+        }
+
+        window.getDateValue  =function () {
+            var summary_quarter = $("#summary_quarter").val()
+            alert(summary_quarter)
+        }
+    });
+
+</script>
+
+</body>
+</html>
